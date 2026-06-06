@@ -62,6 +62,15 @@ function renderCalendar() {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
 
+  // Weekday labels (inserted before padding)
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  weekdays.forEach(day => {
+    const label = document.createElement("div");
+    label.className = "weekday";
+    label.textContent = day;
+    calendar.appendChild(label);
+  });
+
   // Padding for first weekday
   for (let i = 0; i < firstDay.getDay(); i++) {
     const empty = document.createElement("div");
