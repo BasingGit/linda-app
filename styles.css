@@ -22,6 +22,59 @@
   }
 }
 
+/* ---------- THEME VARIABLES (add these) ---------- */
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --header-bg: #eeeeee;
+  --border: #e0e0e0;
+  --selected-bg: #cdeaff;
+  --selected-border: #66aee8;
+
+  /* Badge color thresholds */
+  --badge-bg-low: #2e7d32;    /* green for <= 90 */
+  --badge-bg-high: #c62828;   /* red for > 90 */
+  --badge-text: #ffffff;
+}
+
+/* ---------- DARK MODE OVERRIDES (add these) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --text: #e6e6e6;
+    --header-bg: #1e1e1e;
+    --border: #2b2b2b;
+    --selected-bg: #1f3b4d;
+    --selected-border: #4ea3d8;
+
+    /* Dark mode badge colors (tuned for contrast) */
+    --badge-bg-low: #66bb6a;   /* lighter green in dark mode */
+    --badge-bg-high: #ef5350;  /* lighter red in dark mode */
+    --badge-text: #000000;
+  }
+}
+
+/* ---------- BADGE STYLES (replace or extend existing .badge) ---------- */
+.badge {
+  text-align: center;
+  font-size: 11px;
+  color: var(--badge-text);
+  border-radius: 8px;
+  padding: 2px 6px;
+  align-self: center;
+  min-width: 28px;
+  box-sizing: border-box;
+}
+
+/* Two state classes */
+.badge.low {
+  background: var(--badge-bg-low);
+}
+
+.badge.high {
+  background: var(--badge-bg-high);
+}
+
 *{box-sizing:border-box}
 body{
   margin:0;
