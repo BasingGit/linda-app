@@ -188,7 +188,7 @@ function updateActiveDatesList() {
       month: "short"
     }).toUpperCase().replace(" ", "-");
 
-  let output = "Active Dates:\n";
+  let output = "Selected Future Dates:\n";
 
   if (ranges.length === 0) {
     output += "    None";
