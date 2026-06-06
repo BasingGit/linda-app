@@ -103,6 +103,32 @@ header{
   padding:0;
 }
 
+/* App title at top-centre */
+.app-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 10px 0 4px 0;
+  color: var(--text);
+}
+
+/* Month navigation row */
+.month-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Reduce month label size */
+#monthLabel {
+  font-size: 18px;   /* previously ~24–28px depending on device */
+  font-weight: 500;
+  margin: 0;
+}
+
 /* Weekday header */
 .weekday{
   text-align:center;
