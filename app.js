@@ -82,11 +82,21 @@ function renderCalendar(animation = null){
     dateLabel.className = "date-label";
     dateLabel.textContent = day;
 
-    // Badge (bottom-center)
+    // Badge with threshold color
+    const count = countInLast180Days(dateStr);
+    
     const badge = document.createElement("div");
     badge.className = "badge";
-    badge.textContent = countInLast180Days(dateStr);
-
+    
+    // Apply low/high class based on threshold
+    if (count <= 90) {
+      badge.classList.add("low");
+    } else {
+      badge.classList.add("high");
+    }
+    
+    badge.textContent = count;
+    
     div.appendChild(dateLabel);
     div.appendChild(badge);
 
