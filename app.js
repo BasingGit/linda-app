@@ -151,6 +151,48 @@ function handleDayClick(date){
   rangeStart = null;
   clearRangeStartIndicator();
   renderCalendar();
+  updateActiveDatesList();
+}
+
+// Build list of active (future) dates and display as ranges
+function updateActiveDatesList() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const active = Object.keys(selectedDates)
+    .map(d => new Date(d))
+    .filter(d => d >= today)
+    .sort((a,b) => a - b);
+
+  const ranges = [];
+  for (let i = 0; i < active.length; i++) {
+    let start = active[i];
+    let end = start;
+
+    while (
+      i + 1 < active.length &&
+      (active[i + 1] - end) === 86400000
+    ) {
+      end = active[++i];
+    }
+
+    ranges.push({ start, end });
+  }
+
+  const fmt = d =>
+    d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+
+  const text = ranges
+    .map(r => r.start.getTime() === r.end.getTime()
+      ? fmt(r.start)
+      : `${fmt(r.start)} - ${fmt(r.end)}`
+    )
+    .join(", ");
+
+  const el = document.getElementById("activeDates");
+  if (el) {
+    el.textContent = text ? `Active dates: ${text}` : "No active dates";
+  }
 }
 
 // Swipe navigation (horizontal only)
@@ -191,3 +233,4 @@ document.getElementById("nextMonth").onclick = () => {
 
 // Initial render
 renderCalendar();
+updateActiveDatesList();
