@@ -1,61 +1,70 @@
 /* ---------- THEME VARIABLES ---------- */
 :root {
-    --bg: #ffffff;
-    --text: #000000;
-    --header-bg: #eeeeee;
-    --border: #cccccc;
-    --selected-bg: #cdeaff;
-    --selected-border: #66aee8;
-    --badge-bg: #444444;
-    --badge-text: #ffffff;
+  --bg: #ffffff;
+  --text: #000000;
+  --header-bg: #eeeeee;
+  --border: #cccccc;
+  --selected-bg: #cdeaff;
+  --selected-border: #66aee8;
+  --badge-bg: #444444;
+  --badge-text: #ffffff;
+}
+
+/* ---------- DARK MODE OVERRIDES ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --text: #e6e6e6;
+    --header-bg: #1e1e1e;
+    --border: #333333;
+    --selected-bg: #1f3b4d;
+    --selected-border: #4ea3d8;
+    --badge-bg: #888888;
+    --badge-text: #000000;
   }
-  
-  /* ---------- DARK MODE OVERRIDES ---------- */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #121212;
-      --text: #e6e6e6;
-      --header-bg: #1e1e1e;
-      --border: #333333;
-      --selected-bg: #1f3b4d;
-      --selected-border: #4ea3d8;
-      --badge-bg: #888888;
-      --badge-text: #000000;
-    }
-  }
-  
-  /* ---------- BASE STYLES ---------- */
-  body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-    color: var(--text);
-  }
-  
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: var(--header-bg);
-    color: var(--text);
-  }
-  
-  #calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    padding: 10px;
-  }
-  
+}
+
+/* ---------- BASE LAYOUT ---------- */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: var(--header-bg);
+}
+
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+
+/* ---------- WEEKDAY HEADERS ---------- */
+.weekday {
+  text-align: center;
+  font-weight: 600;
+  padding: 6px 0;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- DAY CELLS ---------- */
 .day {
   position: relative;
+  height: 70px;
   padding: 6px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   background: var(--bg);
-  height: 60px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -77,21 +86,35 @@
   align-self: center;
 }
 
-  .weekday {
-    text-align: center;
-    font-weight: 600;
-    padding: 6px 0;
-    color: var(--text);
-  }
+/* ---------- RANGE START INDICATOR ---------- */
+.day.range-start {
+  outline: 2px solid var(--selected-border);
+  outline-offset: -2px;
+  background: var(--selected-bg);
+  opacity: 0.7;
+}
 
-  .day.selected {
-    background: var(--selected-bg);
-    border-color: var(--selected-border);
-  }
-  
-  .day.range-start {
-    outline: 2px solid var(--selected-border);
-    outline-offset: -2px;
-    background: var(--selected-bg);
-    opacity: 0.7;
-  }
+/* ---------- SELECTED DAYS ---------- */
+.day.selected {
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+}
+
+/* ---------- SWIPE ANIMATIONS ---------- */
+.slide-left-enter {
+  animation: slideLeftIn 250ms ease-out forwards;
+}
+
+.slide-right-enter {
+  animation: slideRightIn 250ms ease-out forwards;
+}
+
+@keyframes slideLeftIn {
+  from { transform: translateX(100%); opacity: 0.2; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRightIn {
+  from { transform: translateX(-100%); opacity: 0.2; }
+  to   { transform: translateX(0); opacity: 1; }
+}
