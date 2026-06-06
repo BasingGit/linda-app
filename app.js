@@ -160,7 +160,10 @@ function updateActiveDatesList() {
   today.setHours(0,0,0,0);
 
   const active = Object.keys(selectedDates)
-    .map(d => new Date(d))
+    .map(d => {
+      const [y, m, day] = d.split("-").map(Number);
+      return new Date(y, m - 1, day);   // local midnight, no timezone shift
+    })
     .filter(d => d >= today)
     .sort((a,b) => a - b);
 
@@ -180,19 +183,26 @@ function updateActiveDatesList() {
   }
 
   const fmt = d =>
-    d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+    d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short"
+    }).toUpperCase().replace(" ", "-");
 
-  const text = ranges
-    .map(r => r.start.getTime() === r.end.getTime()
-      ? fmt(r.start)
-      : `${fmt(r.start)} - ${fmt(r.end)}`
-    )
-    .join(", ");
+  let output = "Active Dates:\n";
 
-  const el = document.getElementById("activeDates");
-  if (el) {
-    el.textContent = text ? `Active dates: ${text}` : "No active dates";
+  if (ranges.length === 0) {
+    output += "    None";
+  } else {
+    output += ranges
+      .map(r =>
+        r.start.getTime() === r.end.getTime()
+          ? `    ${fmt(r.start)}`
+          : `    ${fmt(r.start)} to ${fmt(r.end)}`
+      )
+      .join("\n");
   }
+
+  document.getElementById("activeDates").textContent = output;
 }
 
 // Swipe navigation (horizontal only)
