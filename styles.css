@@ -1,120 +1,131 @@
-/* ---------- THEME VARIABLES ---------- */
-:root {
-  --bg: #ffffff;
-  --text: #000000;
-  --header-bg: #eeeeee;
-  --border: #cccccc;
-  --selected-bg: #cdeaff;
-  --selected-border: #66aee8;
-  --badge-bg: #444444;
-  --badge-text: #ffffff;
+:root{
+  --bg:#ffffff;
+  --text:#000000;
+  --header-bg:#eeeeee;
+  --border:#e0e0e0;
+  --selected-bg:#cdeaff;
+  --selected-border:#66aee8;
+  --badge-bg:#444444;
+  --badge-text:#ffffff;
 }
 
-/* ---------- DARK MODE OVERRIDES ---------- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121212;
-    --text: #e6e6e6;
-    --header-bg: #1e1e1e;
-    --border: #333333;
-    --selected-bg: #1f3b4d;
-    --selected-border: #4ea3d8;
-    --badge-bg: #888888;
-    --badge-text: #000000;
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121212;
+    --text:#e6e6e6;
+    --header-bg:#1e1e1e;
+    --border:#2b2b2b;
+    --selected-bg:#1f3b4d;
+    --selected-border:#4ea3d8;
+    --badge-bg:#888888;
+    --badge-text:#000000;
   }
 }
 
-/* ---------- BASE LAYOUT ---------- */
-body {
-  font-family: sans-serif;
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: var(--header-bg);
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px;
+  background:var(--header-bg);
+  border-bottom:1px solid var(--border);
 }
 
-#calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0;
-  border-top: 1px solid var(--border);
-  border-left: 1px solid var(--border);
+#calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:0;
+  border-left:1px solid var(--border);
+  border-top:1px solid var(--border);
+  padding:0;
 }
 
-/* ---------- WEEKDAY HEADERS ---------- */
-.weekday {
-  text-align: center;
-  font-weight: 600;
-  padding: 6px 0;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+/* Weekday header */
+.weekday{
+  text-align:center;
+  font-weight:600;
+  padding:8px 6px;
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
 }
 
-/* ---------- DAY CELLS ---------- */
-.day {
-  position: relative;
-  height: 70px;
-  padding: 6px;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* Day cell (also used for empty padding cells) */
+.day{
+  position:relative;
+  height:72px;
+  padding:6px;
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
 
-.date-label {
-  text-align: right;
-  font-size: 12px;
-  color: var(--text);
+/* Empty placeholder (no content) */
+.day.empty{
+  background:transparent;
 }
 
-.badge {
-  text-align: center;
-  font-size: 11px;
-  background: var(--badge-bg);
-  color: var(--badge-text);
-  border-radius: 8px;
-  padding: 2px 4px;
-  align-self: center;
+/* Date label top-right */
+.date-label{
+  text-align:right;
+  font-size:12px;
+  color:var(--text);
 }
 
-/* ---------- RANGE START INDICATOR ---------- */
-.day.range-start {
-  outline: 2px solid var(--selected-border);
-  outline-offset: -2px;
-  background: var(--selected-bg);
-  opacity: 0.7;
+/* Count badge bottom-center */
+.badge{
+  text-align:center;
+  font-size:11px;
+  background:var(--badge-bg);
+  color:var(--badge-text);
+  border-radius:8px;
+  padding:2px 6px;
+  align-self:center;
 }
 
-/* ---------- SELECTED DAYS ---------- */
-.day.selected {
-  background: var(--selected-bg);
-  border-color: var(--selected-border);
+/* Selected day */
+.day.selected{
+  background:var(--selected-bg);
+  border-color:var(--selected-border);
 }
 
-/* ---------- SWIPE ANIMATIONS ---------- */
-.slide-left-enter {
-  animation: slideLeftIn 250ms ease-out forwards;
+/* Range start indicator */
+.day.range-start{
+  outline:2px solid var(--selected-border);
+  outline-offset:-2px;
+  background:var(--selected-bg);
+  opacity:0.85;
 }
 
-.slide-right-enter {
-  animation: slideRightIn 250ms ease-out forwards;
+/* Swipe animations */
+.slide-left-enter{animation:slideLeftIn 220ms ease-out forwards}
+.slide-right-enter{animation:slideRightIn 220ms ease-out forwards}
+
+@keyframes slideLeftIn{
+  from{transform:translateX(100%);opacity:0.2}
+  to{transform:translateX(0);opacity:1}
+}
+@keyframes slideRightIn{
+  from{transform:translateX(-100%);opacity:0.2}
+  to{transform:translateX(0);opacity:1}
 }
 
-@keyframes slideLeftIn {
-  from { transform: translateX(100%); opacity: 0.2; }
-  to   { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideRightIn {
-  from { transform: translateX(-100%); opacity: 0.2; }
-  to   { transform: translateX(0); opacity: 1; }
+/* Small responsive tweak */
+@media (max-width:420px){
+  .day{height:64px;padding:5px}
+  .weekday{padding:6px 4px}
 }
