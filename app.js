@@ -84,7 +84,22 @@ function renderCalendar() {
 
     const div = document.createElement("div");
     div.className = "day";
-    div.textContent = day;
+
+    // Date label (top-right)
+    const dateLabel = document.createElement("div");
+    dateLabel.className = "date-label";
+    dateLabel.textContent = day;
+
+    // Count badge (bottom-center)
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.textContent = countInLast180Days(dateStr);
+
+    div.appendChild(dateLabel);
+    div.appendChild(badge);
+
+    // Click handler
+    div.addEventListener("click", () => handleDayClick(date));
 
     if (selectedDates[dateStr]) {
       div.classList.add("selected");
