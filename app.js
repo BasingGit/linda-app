@@ -13,7 +13,10 @@ let rangeStart = null;
 
 // Helpers
 function formatDate(d){
-  return d.toISOString().split("T")[0];
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;   // purely local, no UTC shift
 }
 function daysBetween(d1,d2){
   return Math.floor((d2 - d1) / (1000*60*60*24));
@@ -162,7 +165,7 @@ function updateActiveDatesList() {
   const active = Object.keys(selectedDates)
     .map(d => {
       const [y, m, day] = d.split("-").map(Number);
-      return new Date(y, m - 1, day);   // local midnight, no timezone shift
+      return new Date(y, m - 1, day);   // local date, no UTC shift
     })
     .filter(d => d >= today)
     .sort((a,b) => a - b);
@@ -188,21 +191,21 @@ function updateActiveDatesList() {
       month: "short"
     }).toUpperCase().replace(" ", "-");
 
-  let output = "Selected Future Dates:\n";
+  let html = "Selected Future Dates:<br>";
 
   if (ranges.length === 0) {
-    output += "    None";
+    html += "&nbsp;&nbsp;&nbsp;&nbsp;None";
   } else {
-    output += ranges
+    html += ranges
       .map(r =>
         r.start.getTime() === r.end.getTime()
-          ? `    ${fmt(r.start)}`
-          : `    ${fmt(r.start)} to ${fmt(r.end)}`
+          ? `&nbsp;&nbsp;&nbsp;&nbsp;${fmt(r.start)}`
+          : `&nbsp;&nbsp;&nbsp;&nbsp;${fmt(r.start)} to ${fmt(r.end)}`
       )
-      .join("\n");
+      .join("<br>");
   }
 
-  document.getElementById("activeDates").textContent = output;
+  document.getElementById("activeDates").innerHTML = html;
 }
 
 // Swipe navigation (horizontal only)
