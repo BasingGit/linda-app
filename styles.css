@@ -58,7 +58,14 @@
     background: var(--bg);
     color: var(--text);
   }
-  
+
+  .weekday {
+    text-align: center;
+    font-weight: 600;
+    padding: 6px 0;
+    color: var(--text);
+  }
+
   .day.selected {
     background: var(--selected-bg);
     border-color: var(--selected-border);
