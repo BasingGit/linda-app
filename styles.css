@@ -161,9 +161,12 @@ header{
   opacity:0.85;
 }
 
-/* Red circle for today's date */
+/* Light red circle for today's date */
 .day.today .date-label {
-  background: #d00;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ff3b30;
   border-radius: 50%;
   width: 22px;
   height: 22px;
