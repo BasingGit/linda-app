@@ -77,6 +77,16 @@ function renderCalendar(animation = null){
     const date = new Date(year, month, day);
     const dateStr = formatDate(date);
 
+  // Highlight today
+  const now = new Date();
+  if (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  ) {
+    div.classList.add("today");
+  }
+
     const div = document.createElement("div");
     div.className = "day";
 
