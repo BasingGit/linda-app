@@ -13,19 +13,23 @@ let rangeStart = null;
 
 // Helpers
 function formatDate(d){
+  // LOCAL‑SAFE VERSION — no UTC shift
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;   // purely local, no UTC shift
+  return `${y}-${m}-${day}`;
 }
+
 function daysBetween(d1,d2){
   return Math.floor((d2 - d1) / (1000*60*60*24));
 }
+
 function countInLast180Days(targetDate){
   const target = new Date(targetDate);
   let count = 0;
   for(const dateStr in selectedDates){
-    const d = new Date(dateStr);
+    const [y, m, day] = dateStr.split("-").map(Number);
+    const d = new Date(y, m - 1, day); // LOCAL‑SAFE PARSE
     const diff = daysBetween(d, target);
     if(diff >= 0 && diff <= 180) count++;
   }
@@ -64,7 +68,7 @@ function renderCalendar(animation = null){
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
 
-  // Padding for first weekday: create empty .day elements so grid sizing is consistent
+  // Padding for first weekday
   for(let i = 0; i < firstDay.getDay(); i++){
     const empty = document.createElement("div");
     empty.className = "day empty";
@@ -77,39 +81,31 @@ function renderCalendar(animation = null){
     const date = new Date(year, month, day);
     const dateStr = formatDate(date);
 
-  // Highlight today
-  const now = new Date();
-  if (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  ) {
-    div.classList.add("today");
-  }
-
     const div = document.createElement("div");
     div.className = "day";
 
-    // Date label (top-right)
+    // Highlight today
+    const now = new Date();
+    if (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    ) {
+      div.classList.add("today");
+    }
+
+    // Date label
     const dateLabel = document.createElement("div");
     dateLabel.className = "date-label";
     dateLabel.textContent = day;
 
-    // Badge with threshold color
+    // Badge
     const count = countInLast180Days(dateStr);
-    
     const badge = document.createElement("div");
     badge.className = "badge";
-    
-    // Apply low/high class based on threshold
-    if (count <= 90) {
-      badge.classList.add("low");
-    } else {
-      badge.classList.add("high");
-    }
-    
+    badge.classList.add(count <= 90 ? "low" : "high");
     badge.textContent = count;
-    
+
     div.appendChild(dateLabel);
     div.appendChild(badge);
 
@@ -129,7 +125,6 @@ function handleDayClick(date){
     rangeStart = date;
     clearRangeStartIndicator();
 
-    // Find the matching day element and mark it
     const dayEls = [...document.querySelectorAll(".day")];
     const dayEl = dayEls.find(el => {
       const lbl = el.querySelector(".date-label");
@@ -164,10 +159,10 @@ function handleDayClick(date){
   rangeStart = null;
   clearRangeStartIndicator();
   renderCalendar();
-  updateActiveDatesList();
+  updateActiveDatesList(); // ← KEEP THIS
 }
 
-// Build list of active (future) dates and display as ranges
+// Active dates list (patched)
 function updateActiveDatesList() {
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -175,7 +170,7 @@ function updateActiveDatesList() {
   const active = Object.keys(selectedDates)
     .map(d => {
       const [y, m, day] = d.split("-").map(Number);
-      return new Date(y, m - 1, day);   // local date, no UTC shift
+      return new Date(y, m - 1, day);   // LOCAL‑SAFE PARSE
     })
     .filter(d => d >= today)
     .sort((a,b) => a - b);
@@ -201,7 +196,7 @@ function updateActiveDatesList() {
       month: "short"
     }).toUpperCase().replace(" ", "-");
 
-  let html = "Selected Future Dates:<br>";
+  let html = "Active Dates:<br>";
 
   if (ranges.length === 0) {
     html += "&nbsp;&nbsp;&nbsp;&nbsp;None";
@@ -218,7 +213,7 @@ function updateActiveDatesList() {
   document.getElementById("activeDates").innerHTML = html;
 }
 
-// Swipe navigation (horizontal only)
+// Swipe navigation
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -242,16 +237,20 @@ function handleGesture(){
     current.setMonth(current.getMonth() - 1);
     renderCalendar("right");
   }
+  updateActiveDatesList();
 }
 
 // Navigation buttons
 document.getElementById("prevMonth").onclick = () => {
   current.setMonth(current.getMonth() - 1);
   renderCalendar("right");
+  updateActiveDatesList();
 };
+
 document.getElementById("nextMonth").onclick = () => {
   current.setMonth(current.getMonth() + 1);
   renderCalendar("left");
+  updateActiveDatesList();
 };
 
 // Initial render
