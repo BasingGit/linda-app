@@ -53,6 +53,21 @@ function renderCalendar(animation = null){
   document.getElementById("monthLabel").textContent =
     current.toLocaleString("default",{month:"long",year:"numeric"});
 
+  // Range banner: show current range start if one exists
+  let rangeBanner = document.getElementById("rangeBanner");
+  if (!rangeBanner) {
+    rangeBanner = document.createElement("div");
+    rangeBanner.id = "rangeBanner";
+    document.getElementById("monthLabel").insertAdjacentElement("afterend", rangeBanner);
+  }
+  if (rangeStart) {
+    const rs = new Date(rangeStart);
+    const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }).toUpperCase().replace(" ", "-");
+    rangeBanner.textContent = `Range start: ${fmt(rs)}`;
+  } else {
+    rangeBanner.textContent = "";
+  }
+
   // Weekday headers
   const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   weekdays.forEach(day => {
@@ -81,6 +96,15 @@ function renderCalendar(animation = null){
     const date = new Date(year, month, day);
     const dateStr = formatDate(date);
 
+    // Reapply range-start highlight if this date equals rangeStart
+    if (rangeStart) {
+      const [ry, rm, rday] = formatDate(rangeStart).split("-").map(Number);
+      const rsDateStr = `${ry}-${String(rm).padStart(2,"0")}-${String(rday).padStart(2,"0")}`;
+      if (rsDateStr === dateStr) {
+        div.classList.add("range-start");
+      }
+    }
+    
     const div = document.createElement("div");
     div.className = "day";
 
@@ -111,10 +135,6 @@ function renderCalendar(animation = null){
 
     if(selectedDates[dateStr]) div.classList.add("selected");
 
-    if(rangeStart && formatDate(rangeStart) === dateStr){
-      div.classList.add("range-start");
-    }
-
     div.addEventListener("click", () => handleDayClick(date));
 
     calendar.appendChild(div);
@@ -126,19 +146,14 @@ function handleDayClick(date){
   const dateStr = formatDate(date);
 
   if(!rangeStart){
-    rangeStart = date;
-    render_calendar(); /* Added: render handles highlight */
-    
-    /* Replaced with above line
+    rangeStart = date;    
     clearRangeStartIndicator();
     const dayEls = [...document.querySelectorAll(".day")];
     const dayEl = dayEls.find(el => {
       const lbl = el.querySelector(".date-label");
       return lbl && Number(lbl.textContent) === date.getDate();
     });
-    if(dayEl) dayEl.classList.add("range-start");
-    */
-    
+    if(dayEl) dayEl.classList.add("range-start");    
     return;
   }
 
@@ -170,55 +185,65 @@ function handleDayClick(date){
   updateActiveDatesList(); // ← KEEP THIS
 }
 
-// Active dates list (patched)
+// Active dates summary lists
 function updateActiveDatesList() {
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  const active = Object.keys(selectedDates)
+  // parse stored keys as local dates
+  const allDates = Object.keys(selectedDates)
     .map(d => {
       const [y, m, day] = d.split("-").map(Number);
-      return new Date(y, m - 1, day);   // LOCAL‑SAFE PARSE
+      return new Date(y, m - 1, day);
     })
-    .filter(d => d >= today)
     .sort((a,b) => a - b);
 
-  const ranges = [];
-  for (let i = 0; i < active.length; i++) {
-    let start = active[i];
-    let end = start;
-
-    while (
-      i + 1 < active.length &&
-      (active[i + 1] - end) === 86400000
-    ) {
-      end = active[++i];
+  // helpers to build ranges from a sorted array of Date objects
+  function buildRanges(datesArray) {
+    const ranges = [];
+    for (let i = 0; i < datesArray.length; i++) {
+      let start = datesArray[i];
+      let end = start;
+      while (i + 1 < datesArray.length && (datesArray[i + 1] - end) === 86400000) {
+        end = datesArray[++i];
+      }
+      ranges.push({ start, end });
     }
-
-    ranges.push({ start, end });
+    return ranges;
   }
+
+  // split into past (within last 180 days) and next (today..+180)
+  const pastCutoff = new Date(today);
+  pastCutoff.setDate(pastCutoff.getDate() - 180);
+
+  const futureCutoff = new Date(today);
+  futureCutoff.setDate(futureCutoff.getDate() + 180);
+
+  const pastDates = allDates.filter(d => d >= pastCutoff && d < today);
+  const nextDates = allDates.filter(d => d >= today && d <= futureCutoff);
+
+  const pastRanges = buildRanges(pastDates);
+  const nextRanges = buildRanges(nextDates);
 
   const fmt = d =>
-    d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short"
-    }).toUpperCase().replace(" ", "-");
+    d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
+     .toUpperCase().replace(" ", "-");
 
-  let html = "Active Dates:<br>";
-
-  if (ranges.length === 0) {
-    html += "&nbsp;&nbsp;&nbsp;&nbsp;None";
-  } else {
-    html += ranges
+  function rangesToText(ranges) {
+    if (ranges.length === 0) return "    None";
+    return ranges
       .map(r =>
         r.start.getTime() === r.end.getTime()
-          ? `&nbsp;&nbsp;&nbsp;&nbsp;${fmt(r.start)}`
-          : `&nbsp;&nbsp;&nbsp;&nbsp;${fmt(r.start)} to ${fmt(r.end)}`
+          ? `    ${fmt(r.start)}`
+          : `    ${fmt(r.start)} to ${fmt(r.end)}`
       )
-      .join("<br>");
+      .join("\n");
   }
 
-  document.getElementById("activeDates").innerHTML = html;
+  const pastEl = document.getElementById("pastDates");
+  const nextEl = document.getElementById("nextDates");
+  if (pastEl) pastEl.textContent = rangesToText(pastRanges);
+  if (nextEl) nextEl.textContent = rangesToText(nextRanges);
 }
 
 // Swipe navigation
