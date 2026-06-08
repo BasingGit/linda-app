@@ -31,7 +31,7 @@ function countInLast180Days(targetDate){
     const [y, m, day] = dateStr.split("-").map(Number);
     const d = new Date(y, m - 1, day); // LOCAL‑SAFE PARSE
     const diff = daysBetween(d, target);
-    if(diff >= 0 && diff <= 180) count++;
+    if(diff >= 0 && diff < 180) count++;
   }
   return count;
 }
@@ -111,6 +111,10 @@ function renderCalendar(animation = null){
 
     if(selectedDates[dateStr]) div.classList.add("selected");
 
+    if(rangeStart && formatDate(rangeStart) === dateStr){
+      div.classList.add("range-start");
+    }
+
     div.addEventListener("click", () => handleDayClick(date));
 
     calendar.appendChild(div);
@@ -123,14 +127,18 @@ function handleDayClick(date){
 
   if(!rangeStart){
     rangeStart = date;
+    render_calendar(); /* Added: render handles highlight */
+    
+    /* Replaced with above line
     clearRangeStartIndicator();
-
     const dayEls = [...document.querySelectorAll(".day")];
     const dayEl = dayEls.find(el => {
       const lbl = el.querySelector(".date-label");
       return lbl && Number(lbl.textContent) === date.getDate();
     });
     if(dayEl) dayEl.classList.add("range-start");
+    */
+    
     return;
   }
 
