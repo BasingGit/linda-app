@@ -28,7 +28,16 @@
     <div id="calendar" role="grid" aria-label="Month calendar"></div>
   </main>
 
-  <div id="activeDates"></div>
+  <div id="activeColumns" class="active-columns">
+    <div class="active-column">
+      <div class="active-title">Past 180 Days</div>
+      <div id="pastDates" class="active-list"></div>
+    </div>
+    <div class="active-column">
+      <div class="active-title">Next 180 Days</div>
+      <div id="nextDates" class="active-list"></div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
