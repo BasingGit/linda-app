@@ -79,11 +79,31 @@ header{
   padding:0;
 }
 
-#activeDates {
-  margin: 15px 10px;
+.active-columns {
+  display: flex;
+  gap: 16px;
+  margin: 12px 10px;
+}
+.active-column {
+  flex: 1;
+  background: var(--panel-bg, transparent);
   padding: 8px;
+  border-radius: 6px;
+}
+.active-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.active-list {
+  white-space: pre; /* preserves indentation and newlines if you use textContent */
+  font-family: inherit;
   font-size: 14px;
   color: var(--text);
+}
+#rangeBanner {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
 }
 
 /* App title at top-centre */
