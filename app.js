@@ -53,21 +53,6 @@ function renderCalendar(animation = null){
   document.getElementById("monthLabel").textContent =
     current.toLocaleString("default",{month:"long",year:"numeric"});
 
-  // Range banner: show current range start if one exists
-  let rangeBanner = document.getElementById("rangeBanner");
-  if (!rangeBanner) {
-    rangeBanner = document.createElement("div");
-    rangeBanner.id = "rangeBanner";
-    document.getElementById("monthLabel").insertAdjacentElement("afterend", rangeBanner);
-  }
-  if (rangeStart) {
-    const rs = new Date(rangeStart);
-    const fmt = d => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }).toUpperCase().replace(" ", "-");
-    rangeBanner.textContent = `Range start: ${fmt(rs)}`;
-  } else {
-    rangeBanner.textContent = "";
-  }
-
   // Weekday headers
   const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   weekdays.forEach(day => {
@@ -92,23 +77,36 @@ function renderCalendar(animation = null){
   }
 
   // Days of month
-  for(let day = 1; day <= lastDay.getDate(); day++){
+  for (let day = 1; day <= lastDay.getDate(); day++) {
     const date = new Date(year, month, day);
     const dateStr = formatDate(date);
-
-    // Reapply range-start highlight if this date equals rangeStart
-    if (rangeStart) {
-      const [ry, rm, rday] = formatDate(rangeStart).split("-").map(Number);
-      const rsDateStr = `${ry}-${String(rm).padStart(2,"0")}-${String(rday).padStart(2,"0")}`;
-      if (rsDateStr === dateStr) {
-        div.classList.add("range-start");
-      }
-    }
-    
+  
     const div = document.createElement("div");
     div.className = "day";
-
-    // Highlight today
+  
+    // Date label (top-right)
+    const dateLabel = document.createElement("div");
+    dateLabel.className = "date-label";
+    dateLabel.textContent = day;
+  
+    // Badge with threshold color
+    const count = countInLast180Days(dateStr);
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.classList.add(count <= 90 ? "low" : "high");
+    badge.textContent = count;
+  
+    // Append label and badge (structure first, classes applied after)
+    div.appendChild(dateLabel);
+    div.appendChild(badge);
+  
+    // Reapply visual state from data/state (order matters)
+    // 1) selected (comes from persistent selectedDates)
+    if (selectedDates[dateStr]) {
+      div.classList.add("selected");
+    }
+  
+    // 2) today highlight
     const now = new Date();
     if (
       date.getFullYear() === now.getFullYear() &&
@@ -117,26 +115,18 @@ function renderCalendar(animation = null){
     ) {
       div.classList.add("today");
     }
-
-    // Date label
-    const dateLabel = document.createElement("div");
-    dateLabel.className = "date-label";
-    dateLabel.textContent = day;
-
-    // Badge
-    const count = countInLast180Days(dateStr);
-    const badge = document.createElement("div");
-    badge.className = "badge";
-    badge.classList.add(count <= 90 ? "low" : "high");
-    badge.textContent = count;
-
-    div.appendChild(dateLabel);
-    div.appendChild(badge);
-
-    if(selectedDates[dateStr]) div.classList.add("selected");
-
+  
+    // 3) range-start (reapply if the stored rangeStart matches this date)
+    if (rangeStart) {
+      // ensure rangeStart is a Date object; formatDate(rangeStart) is safe
+      if (formatDate(rangeStart) === dateStr) {
+        div.classList.add("range-start");
+      }
+    }
+  
+    // Event handler (unchanged)
     div.addEventListener("click", () => handleDayClick(date));
-
+  
     calendar.appendChild(div);
   }
 }
